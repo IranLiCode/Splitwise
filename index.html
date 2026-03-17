@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Split — Roommate Expense Tracker</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F0EFE9;--card:#FFFFFF;--bd:#C8C6BE;--bd2:#A8A6A0;
+  --txt:#111110;--txt2:#44433F;--txt3:#7A7975;
+  --accent:#1A4FCC;--btn:#111110;--btntxt:#FFFFFF;
+  --green:#0A6B35;--greenbg:#C8F0D8;--greenbrd:#0A9A50;
+  --red:#A01515;--redbg:#FAD4D4;--redbrd:#CC1A1A;
+  --amberbg:#FDE9A0;--amberbrd:#C8A400;--amber:#7A4E00;
+}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
+.app{max-width:800px;margin:0 auto;padding:24px 16px 80px}
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.hdr h1{font-size:22px;font-weight:700;letter-spacing:-0.4px}
+.hdr p{font-size:13px;color:var(--txt2);margin-top:2px}
+.mnav{display:flex;align-items:center;gap:4px}
+.mnbtn{background:var(--btn);color:var(--btntxt);border:none;border-radius:8px;width:34px;height:34px;font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .15s}
+.mnbtn:hover{opacity:.8}
+.mnlbl{font-size:13px;font-weight:600;min-width:88px;text-align:center}
+.avs{display:flex}
+.av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;border:3px solid var(--card)}
+.av-a{background:#1A4FCC;color:#fff}
+.av-b{background:#9D1A6B;color:#fff;margin-left:-8px}
+.tabs{display:flex;gap:2px;background:var(--card);border-radius:999px;padding:4px;border:1.5px solid var(--bd);margin-bottom:22px;overflow-x:auto;width:fit-content;max-width:100%}
+.tab{padding:7px 15px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;color:var(--txt2);border:none;background:none;transition:all .15s;white-space:nowrap}
+.tab:hover:not(.active){color:var(--txt);background:var(--bg)}
+.tab.active{background:var(--btn);color:var(--btntxt)}
+.sg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px}
+.sc{background:var(--card);border-radius:14px;border:1.5px solid var(--bd);padding:16px}
+.sc .lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--txt3);margin-bottom:8px}
+.sc .val{font-size:21px;font-weight:700;letter-spacing:-0.5px}
+.sc .sub{font-size:12px;color:var(--txt2);margin-top:4px}
+.banner{border-radius:14px;padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;border:1.5px solid}
+.b-even{background:var(--amberbg);border-color:var(--amberbrd)}
+.b-even .banner-txt,.b-even .banner-amt{color:var(--amber)}
+.b-get{background:var(--greenbg);border-color:var(--greenbrd)}
+.b-get .banner-txt,.b-get .banner-amt{color:var(--green)}
+.b-owe{background:var(--redbg);border-color:var(--redbrd)}
+.b-owe .banner-txt,.b-owe .banner-amt{color:var(--red)}
+.banner-txt{font-size:14px;font-weight:700}
+.banner-amt{font-size:20px;font-weight:700}
+.pcard{background:var(--card);border-radius:14px;border:1.5px solid var(--bd);padding:18px;margin-bottom:14px}
+.prow{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1.5px solid var(--bd)}
+.prow:last-child{border:none;padding-bottom:0}
+.prow:first-child{padding-top:0}
+.pinfo{display:flex;align-items:center;gap:10px}
+.pname{font-size:14px;font-weight:700}
+.psub{font-size:12px;color:var(--txt2)}
+.pamt{font-size:15px;font-weight:700;text-align:right}
+.pshare{font-size:12px;color:var(--txt2)}
+.fcard{background:var(--card);border-radius:14px;border:1.5px solid var(--bd);padding:20px;margin-bottom:14px}
+.ftitle{font-size:15px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+.ftitle-sub{font-size:12px;font-weight:500;color:var(--txt3)}
+.frow{display:grid;gap:10px;margin-bottom:10px}
+.f3{grid-template-columns:2fr 1fr 1fr}
+.f2{grid-template-columns:1fr 1fr}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:12px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.04em}
+.field input,.field select{font-family:inherit;font-size:14px;font-weight:500;padding:10px 12px;border:2px solid var(--bd2);border-radius:10px;background:var(--bg);color:var(--txt);outline:none;transition:border-color .15s;width:100%}
+.field input:focus,.field select:focus{border-color:var(--accent);background:var(--card)}
+.field input::placeholder{color:var(--txt3)}
+.abtn{width:100%;padding:12px;background:var(--btn);color:var(--btntxt);border:none;border-radius:10px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin-top:6px;transition:opacity .15s}
+.abtn:hover{opacity:.82}
+.abtn.blue{background:var(--accent)}
+.sbtn{padding:9px 16px;background:var(--card);color:var(--txt);border:2px solid var(--bd2);border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s}
+.sbtn:hover{background:var(--bg);border-color:var(--txt)}
+.sechdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.secttl{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--txt2)}
+.fpills{display:flex;gap:5px;flex-wrap:wrap}
+.pill{padding:6px 14px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;border:2px solid var(--bd2);background:var(--card);color:var(--txt2);transition:all .15s}
+.pill:hover:not(.active){color:var(--txt);border-color:var(--txt)}
+.pill.active{background:var(--btn);color:var(--btntxt);border-color:var(--btn)}
+.elist{display:flex;flex-direction:column;gap:6px}
+.eitem{background:var(--card);border-radius:10px;border:1.5px solid var(--bd);padding:13px 15px;display:flex;align-items:center;gap:12px}
+.cdot{width:10px;height:10px;border-radius:50%;flex-shrink:0;border:2px solid rgba(0,0,0,0.12)}
+.emain{flex:1;min-width:0}
+.edesc{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.emeta{font-size:12px;color:var(--txt2);margin-top:2px;font-weight:500}
+.eright{text-align:right;flex-shrink:0}
+.eamt{font-size:15px;font-weight:700}
+.epaid{font-size:11px;color:var(--txt3);margin-top:1px;font-weight:500}
+.delbtn{background:none;border:2px solid transparent;border-radius:6px;cursor:pointer;color:var(--txt3);font-size:18px;padding:2px 6px;transition:all .15s;flex-shrink:0;line-height:1}
+.delbtn:hover{color:var(--red);border-color:var(--red);background:var(--redbg)}
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.ccard{background:var(--card);border-radius:14px;border:1.5px solid var(--bd);padding:15px}
+.chdr{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.cicn{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;border:1.5px solid rgba(0,0,0,0.1)}
+.cnm{font-size:14px;font-weight:700}
+.ctot{font-size:18px;font-weight:700;margin-bottom:3px}
+.cct{font-size:12px;color:var(--txt2);font-weight:500}
+.barbg{height:6px;background:var(--bg);border-radius:3px;margin-top:10px;border:1px solid var(--bd)}
+.barfill{height:6px;border-radius:3px;transition:width .4s}
+.empty{text-align:center;padding:40px 20px;color:var(--txt2);font-size:14px;font-weight:500}
+.rec-item{background:var(--card);border-radius:10px;border:1.5px solid var(--bd);padding:13px 15px;display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.rec-badge{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--btn);color:var(--btntxt);white-space:nowrap}
+@media(max-width:520px){
+  .sg{grid-template-columns:1fr 1fr}
+  .f3{grid-template-columns:1fr 1fr}
+  .f3 .field:first-child{grid-column:1/-1}
+  .cgrid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hdr">
+    <div>
+      <h1>Split</h1>
+      <p id="hmonth">March 2026</p>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="mnav">
+        <button class="mnbtn" data-action="month-prev">&#8249;</button>
+        <span class="mnlbl" id="mnlbl">Mar 2026</span>
+        <button class="mnbtn" data-action="month-next">&#8250;</button>
+      </div>
+      <div class="avs">
+        <div class="av av-a" id="av-a-el">A</div>
+        <div class="av av-b" id="av-b-el">B</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-action="tab" data-tab="dashboard">Dashboard</button>
+    <button class="tab" data-action="tab" data-tab="expenses">Expenses</button>
+    <button class="tab" data-action="tab" data-tab="categories">Categories</button>
+    <button class="tab" data-action="tab" data-tab="chart">Chart</button>
+    <button class="tab" data-action="tab" data-tab="recurring">Recurring</button>
+    <button class="tab" data-action="tab" data-tab="settings">Settings</button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="tab-dashboard">
+    <div class="sg">
+      <div class="sc"><div class="lbl">Total spent</div><div class="val" id="tot">$0.00</div><div class="sub" id="ecnt">0 expenses</div></div>
+      <div class="sc"><div class="lbl" id="lbl-a">Person A paid</div><div class="val" id="paid-a">$0.00</div><div class="sub" id="share-a">share: $0.00</div></div>
+      <div class="sc"><div class="lbl" id="lbl-b">Person B paid</div><div class="val" id="paid-b">$0.00</div><div class="sub" id="share-b">share: $0.00</div></div>
+    </div>
+    <div id="banner" class="banner b-even"><div class="banner-txt">All settled up</div><div class="banner-amt">$0.00</div></div>
+    <div class="pcard" id="pbreak"></div>
+    <div class="fcard">
+      <div class="ftitle">Add expense <span class="ftitle-sub">50/50 split</span></div>
+      <div class="frow f3">
+        <div class="field"><label>Description</label><input id="idesc" placeholder="e.g. Groceries"/></div>
+        <div class="field"><label>Amount ($)</label><input id="iamt" type="number" min="0" step="0.01" placeholder="0.00"/></div>
+        <div class="field"><label>Paid by</label><select id="ipaid"></select></div>
+      </div>
+      <div class="frow f2">
+        <div class="field"><label>Category</label><select id="icat"></select></div>
+        <div class="field"><label>Date</label><input id="idate" type="date"/></div>
+      </div>
+      <button class="abtn" data-action="add-expense">+ Add expense</button>
+    </div>
+  </div>
+
+  <!-- EXPENSES -->
+  <div id="tab-expenses" style="display:none">
+    <div class="sechdr">
+      <div class="secttl">All expenses</div>
+      <div class="fpills" id="filter-pills">
+        <span class="pill active" data-action="filter" data-filter="all">All</span>
+      </div>
+    </div>
+    <div class="elist" id="elist"></div>
+  </div>
+
+  <!-- CATEGORIES -->
+  <div id="tab-categories" style="display:none">
+    <div class="sechdr">
+      <div class="secttl">By category</div>
+      <button class="sbtn" data-action="add-cat-toggle">+ Add category</button>
+    </div>
+    <div id="addcat-area" style="display:none;margin-bottom:14px">
+      <div class="fcard" style="margin:0">
+        <div class="frow" style="grid-template-columns:1fr 72px auto;gap:10px;align-items:flex-end">
+          <div class="field"><label>Name</label><input id="ncat" placeholder="e.g. Pet care"/></div>
+          <div class="field"><label>Emoji</label><input id="nemi" placeholder="🐾" style="text-align:center"/></div>
+          <button class="abtn" style="width:auto;margin:0;padding:10px 18px" data-action="add-cat-save">Add</button>
+        </div>
+      </div>
+    </div>
+    <div class="cgrid" id="cgrid"></div>
+    <div class="sechdr"><div class="secttl">Manage categories</div></div>
+    <div id="cat-manage"></div>
+  </div>
+
+  <!-- CHART -->
+  <div id="tab-chart" style="display:none">
+    <div class="sechdr"><div class="secttl">Spending by category</div></div>
+    <div class="fcard" style="padding:16px 20px 20px">
+      <div class="fpills" style="margin-bottom:14px">
+        <span class="pill active" data-action="chart-type" data-charttype="bar">Bar</span>
+        <span class="pill" data-action="chart-type" data-charttype="pie">Pie</span>
+      </div>
+      <div id="chart-legend" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px;font-size:13px;font-weight:600;color:var(--txt2)"></div>
+      <div style="position:relative;width:100%;height:300px"><canvas id="myChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- RECURRING -->
+  <div id="tab-recurring" style="display:none">
+    <div class="sechdr">
+      <div class="secttl">Recurring expenses</div>
+      <button class="sbtn" data-action="show-rec-form">+ Add recurring</button>
+    </div>
+    <div id="rec-form-wrap" style="display:none;margin-bottom:14px">
+      <div class="fcard" style="margin:0">
+        <div class="ftitle">New recurring expense</div>
+        <div class="frow f3">
+          <div class="field"><label>Description</label><input id="rdesc" placeholder="e.g. Netflix"/></div>
+          <div class="field"><label>Amount ($)</label><input id="ramt" type="number" min="0" step="0.01" placeholder="0.00"/></div>
+          <div class="field"><label>Paid by</label><select id="rpaid"></select></div>
+        </div>
+        <div class="frow f2">
+          <div class="field"><label>Category</label><select id="rcat"></select></div>
+          <div class="field"><label>Day of month</label><input id="rday" type="number" min="1" max="28" placeholder="1"/></div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="abtn" data-action="add-rec">Save recurring</button>
+          <button class="sbtn" data-action="hide-rec-form">Cancel</button>
+        </div>
+      </div>
+    </div>
+    <div id="rec-list"></div>
+
+  </div>
+
+  <!-- SETTINGS -->
+  <div id="tab-settings" style="display:none">
+    <div class="fcard">
+      <div class="ftitle">Roommate names</div>
+      <div class="frow f2">
+        <div class="field"><label>Person A name</label><input id="sname-a" placeholder="Alex"/></div>
+        <div class="field"><label>Person B name</label><input id="sname-b" placeholder="Jordan"/></div>
+      </div>
+      <button class="abtn" data-action="save-settings">Save names</button>
+    </div>
+    <div class="fcard">
+      <div class="ftitle" style="margin-bottom:8px">Export data</div>
+      <p style="font-size:13px;color:var(--txt2);margin-bottom:14px">Download all your expense data as a JSON file. You can use this as a backup or import it on another device.</p>
+      <button class="abtn" data-action="export">Download backup (JSON)</button>
+    </div>
+    <div class="fcard">
+      <div class="ftitle" style="margin-bottom:8px">Import data</div>
+      <p style="font-size:13px;color:var(--txt2);margin-bottom:14px">Restore from a previously exported JSON backup file.</p>
+      <div class="field" style="margin-bottom:10px"><label>Select backup file</label><input type="file" id="import-file" accept=".json" style="padding:8px 12px"/></div>
+      <button class="abtn" data-action="import" style="background:var(--accent)">Import backup</button>
+    </div>
+    <div class="fcard">
+      <div class="ftitle" style="color:var(--red);margin-bottom:8px">Danger zone</div>
+      <p style="font-size:13px;color:var(--txt2);margin-bottom:14px">Permanently delete all expenses for the currently viewed month. This cannot be undone.</p>
+      <button class="abtn" style="background:var(--red)" data-action="clear-month">Clear this month's expenses</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DEFAULT_CATS = [
+  {name:'Groceries',emoji:'🛒',color:'#1A4FCC'},
+  {name:'Dining',   emoji:'🍽',color:'#B84A00'},
+  {name:'Rent',     emoji:'🏠',color:'#6B21A8'},
+  {name:'Utilities',emoji:'💡',color:'#B45309'},
+  {name:'Household',emoji:'🧹',color:'#0A6B35'},
+  {name:'Transport',emoji:'🚗',color:'#1E40AF'},
+  {name:'Fun',      emoji:'🎉',color:'#9D1A6B'},
+  {name:'Health',   emoji:'💊',color:'#A01515'},
+  {name:'Other',    emoji:'📦',color:'#44433F'},
+];
+const COLOR_POOL = ['#1A4FCC','#B84A00','#6B21A8','#B45309','#0A6B35','#9D1A6B','#A01515','#065F46','#0E7490','#7C2D12'];
+
+let categories = JSON.parse(localStorage.getItem('split-cats') || 'null') || JSON.parse(JSON.stringify(DEFAULT_CATS));
+let expenses   = JSON.parse(localStorage.getItem('split-exp')  || '[]');
+let recurring  = JSON.parse(localStorage.getItem('split-rec')  || '[]');
+let names      = JSON.parse(localStorage.getItem('split-names')|| 'null') || {A:'Alex',B:'Jordan'};
+let viewMonth  = new Date(); viewMonth.setDate(1);
+let currentFilter = 'all';
+let chartType = 'bar';
+let chartInst = null;
+
+function save() {
+  localStorage.setItem('split-cats',  JSON.stringify(categories));
+  localStorage.setItem('split-exp',   JSON.stringify(expenses));
+  localStorage.setItem('split-rec',   JSON.stringify(recurring));
+  localStorage.setItem('split-names', JSON.stringify(names));
+}
+
+function fmt(n) { return '$' + Math.abs(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,','); }
+function uid()  { return String(Date.now()) + String(Math.floor(Math.random()*99999)); }
+function catKey(c) { return c.emoji + ' ' + c.name; }
+function getCat(k) { return categories.find(c => catKey(c) === k) || categories[categories.length-1]; }
+
+// ── Names ─────────────────────────────────────────────────────────────────────
+function applyNames() {
+  document.getElementById('lbl-a').textContent   = names.A + ' paid';
+  document.getElementById('lbl-b').textContent   = names.B + ' paid';
+  document.getElementById('av-a-el').textContent = names.A[0].toUpperCase();
+  document.getElementById('av-b-el').textContent = names.B[0].toUpperCase();
+  document.getElementById('sname-a').value       = names.A;
+  document.getElementById('sname-b').value       = names.B;
+  const pills = document.getElementById('filter-pills');
+  pills.innerHTML = `
+    <span class="pill active" data-action="filter" data-filter="all">All</span>
+    <span class="pill" data-action="filter" data-filter="A">${names.A}</span>
+    <span class="pill" data-action="filter" data-filter="B">${names.B}</span>`;
+  ['ipaid','rpaid'].forEach(id => {
+    const el = document.getElementById(id); if (!el) return;
+    const prev = el.value;
+    el.innerHTML = `<option value="A">${names.A}</option><option value="B">${names.B}</option>`;
+    if (prev) el.value = prev;
+  });
+}
+
+function populateCatSelects() {
+  ['icat','rcat'].forEach(id => {
+    const el = document.getElementById(id); if (!el) return;
+    const prev = el.value;
+    el.innerHTML = categories.map(c => `<option value="${catKey(c)}">${c.emoji} ${c.name}</option>`).join('');
+    if (prev) el.value = prev;
+  });
+}
+
+// ── Month nav ─────────────────────────────────────────────────────────────────
+function updateMonthDisplay() {
+  const s = MONTHS[viewMonth.getMonth()] + ' ' + viewMonth.getFullYear();
+  document.getElementById('mnlbl').textContent  = s;
+  document.getElementById('hmonth').textContent = new Date(viewMonth).toLocaleString('default',{month:'long',year:'numeric'});
+}
+function changeMonth(d) {
+  viewMonth.setMonth(viewMonth.getMonth() + d);
+  updateMonthDisplay();
+  render();
+}
+function getMonthExp() {
+  const y = viewMonth.getFullYear(), m = viewMonth.getMonth();
+  return expenses.filter(e => { const d = new Date(e.date); return d.getFullYear()===y && d.getMonth()===m; });
+}
+
+// ── Tab switching ─────────────────────────────────────────────────────────────
+function switchTab(n) {
+  ['dashboard','expenses','categories','chart','recurring','settings'].forEach(t =>
+    document.getElementById('tab-'+t).style.display = t===n ? '' : 'none'
+  );
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.tab === n);
+  });
+  if (n === 'chart') renderChart();
+}
+
+// ── Recurring auto-apply ──────────────────────────────────────────────────────
+function autoApplyRecurring() {
+  if (!recurring.length) return;
+  const y = viewMonth.getFullYear(), m = viewMonth.getMonth();
+  let changed = false;
+  recurring.forEach(r => {
+    const dateStr = new Date(y, m, Math.min(r.day, 28)).toISOString().split('T')[0];
+    const exists  = expenses.some(e => String(e.recurringId) === String(r.id) && e.date === dateStr);
+    if (!exists) {
+      expenses.push({ id: uid(), recurringId: String(r.id), desc: r.desc, amount: r.amount, paid: r.paid, cat: r.cat, date: dateStr });
+      changed = true;
+    }
+  });
+  if (changed) save();
+}
+
+// ── Main render ───────────────────────────────────────────────────────────────
+function render() {
+  autoApplyRecurring();
+  const me    = getMonthExp();
+  const tA    = me.filter(e=>e.paid==='A').reduce((s,e)=>s+e.amount,0);
+  const tB    = me.filter(e=>e.paid==='B').reduce((s,e)=>s+e.amount,0);
+  const tot   = tA+tB, share = tot/2, bal = tA-share;
+  document.getElementById('tot').textContent     = fmt(tot);
+  document.getElementById('ecnt').textContent    = me.length+' expense'+(me.length!==1?'s':'');
+  document.getElementById('paid-a').textContent  = fmt(tA);
+  document.getElementById('paid-b').textContent  = fmt(tB);
+  document.getElementById('share-a').textContent = 'share: '+fmt(share);
+  document.getElementById('share-b').textContent = 'share: '+fmt(share);
+  const bn = document.getElementById('banner');
+  if (Math.abs(bal) < 0.005) {
+    bn.className = 'banner b-even';
+    bn.innerHTML = '<div class="banner-txt">All settled up \u2713</div><div class="banner-amt">$0.00</div>';
+  } else if (bal > 0) {
+    bn.className = 'banner b-get';
+    bn.innerHTML = `<div class="banner-txt">${names.B} owes ${names.A}</div><div class="banner-amt">${fmt(bal)}</div>`;
+  } else {
+    bn.className = 'banner b-owe';
+    bn.innerHTML = `<div class="banner-txt">${names.A} owes ${names.B}</div><div class="banner-amt">${fmt(Math.abs(bal))}</div>`;
+  }
+  document.getElementById('pbreak').innerHTML = `
+    <div class="prow">
+      <div class="pinfo">
+        <div class="av av-a" style="width:30px;height:30px;font-size:12px;border-width:2px">${names.A[0].toUpperCase()}</div>
+        <div><div class="pname">${names.A}</div><div class="psub">${me.filter(e=>e.paid==='A').length} expenses paid</div></div>
+      </div>
+      <div><div class="pamt">${fmt(tA)}</div><div class="pshare">50% share: ${fmt(share)}</div></div>
+    </div>
+    <div class="prow">
+      <div class="pinfo">
+        <div class="av av-b" style="width:30px;height:30px;font-size:12px;border-width:2px">${names.B[0].toUpperCase()}</div>
+        <div><div class="pname">${names.B}</div><div class="psub">${me.filter(e=>e.paid==='B').length} expenses paid</div></div>
+      </div>
+      <div><div class="pamt">${fmt(tB)}</div><div class="pshare">50% share: ${fmt(share)}</div></div>
+    </div>`;
+  renderList();
+  renderCatGrid();
+}
+
+// ── Expense list ──────────────────────────────────────────────────────────────
+function renderList() {
+  const me  = getMonthExp();
+  const fil = currentFilter==='all' ? me : me.filter(e=>e.paid===currentFilter);
+  const el  = document.getElementById('elist');
+  if (!fil.length) { el.innerHTML = '<div class="empty">No expenses this month</div>'; return; }
+  el.innerHTML = [...fil].sort((a,b)=>new Date(b.date)-new Date(a.date)).map(e => {
+    const cat = getCat(e.cat);
+    const d   = new Date(e.date+'T00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    const recBadge = e.recurringId
+      ? '<span style="font-size:10px;font-weight:700;padding:2px 6px;border-radius:999px;background:#EEF3FD;color:#185FA5;margin-left:4px">\u21bb recurring</span>' : '';
+    return `<div class="eitem" data-id="${e.id}">
+      <div class="cdot" style="background:${cat.color}"></div>
+      <div class="emain">
+        <div class="edesc">${e.desc}${recBadge}</div>
+        <div class="emeta">${e.cat} \u00b7 ${d}</div>
+      </div>
+      <div class="eright">
+        <div class="eamt">${fmt(e.amount)}</div>
+        <div class="epaid">paid by ${names[e.paid]}</div>
+      </div>
+      <button class="editbtn" data-action="edit-exp" data-id="${e.id}" title="Edit" style="background:none;border:2px solid var(--bd2);border-radius:6px;cursor:pointer;color:var(--txt2);font-size:13px;padding:3px 8px;transition:all .15s;flex-shrink:0;font-weight:700">\u270e</button>
+      <button class="delbtn"  data-action="del-exp"  data-id="${e.id}" title="Delete">\u00d7</button>
+    </div>`;
+  }).join('');
+}
+
+// ── Add expense ───────────────────────────────────────────────────────────────
+function addExpense() {
+  const desc = document.getElementById('idesc').value.trim();
+  const amt  = parseFloat(document.getElementById('iamt').value);
+  const paid = document.getElementById('ipaid').value;
+  const cat  = document.getElementById('icat').value;
+  const date = document.getElementById('idate').value;
+  if (!desc || isNaN(amt) || amt<=0 || !date) return;
+  expenses.push({ id: uid(), desc, amount: amt, paid, cat, date });
+  save();
+  document.getElementById('idesc').value = '';
+  document.getElementById('iamt').value  = '';
+  render();
+}
+
+// ── Edit expense (inline) ─────────────────────────────────────────────────────
+function startEditExp(id) {
+  const exp = expenses.find(e => e.id === id); if (!exp) return;
+  const row = document.querySelector(`.eitem[data-id="${id}"]`); if (!row) return;
+  const catOpts  = categories.map(c => `<option value="${catKey(c)}"${catKey(c)===exp.cat?' selected':''}>${c.emoji} ${c.name}</option>`).join('');
+  const paidOpts = `<option value="A"${exp.paid==='A'?' selected':''}>${names.A}</option><option value="B"${exp.paid==='B'?' selected':''}>${names.B}</option>`;
+  const inp = s => `style="font-family:inherit;font-size:13px;padding:7px 10px;border:2px solid var(--bd2);border-radius:8px;background:var(--card);color:var(--txt);outline:none;width:100%"`;
+  row.innerHTML = `
+    <div style="width:100%;display:flex;flex-direction:column;gap:8px">
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px">
+        <input data-ef="desc"   value="${exp.desc}"   ${inp()} />
+        <input data-ef="amount" value="${exp.amount}" type="number" min="0" step="0.01" ${inp()} />
+        <input data-ef="date"   value="${exp.date}"   type="date" ${inp()} />
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <select data-ef="cat"  ${inp()}>${catOpts}</select>
+        <select data-ef="paid" ${inp()}>${paidOpts}</select>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button data-action="save-exp" data-id="${id}" style="flex:1;padding:9px;background:var(--btn);color:var(--btntxt);border:none;border-radius:8px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer">Save</button>
+        <button data-action="cancel-exp" style="flex:1;padding:9px;background:var(--card);color:var(--txt);border:2px solid var(--bd2);border-radius:8px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer">Cancel</button>
+      </div>
+    </div>`;
+  row.style.flexWrap = 'wrap';
+  row.querySelector('[data-ef="desc"]').style.borderColor = 'var(--accent)';
+}
+
+function saveEditExp(id) {
+  const row = document.querySelector(`.eitem[data-id="${id}"]`); if (!row) return;
+  const get = f => row.querySelector(`[data-ef="${f}"]`).value;
+  const amt = parseFloat(get('amount'));
+  if (!get('desc') || isNaN(amt) || amt<=0 || !get('date')) return;
+  const exp = expenses.find(e => e.id === id); if (!exp) return;
+  exp.desc = get('desc').trim(); exp.amount = amt;
+  exp.date = get('date'); exp.cat = get('cat'); exp.paid = get('paid');
+  save(); render();
+}
+
+// ── Category grid ─────────────────────────────────────────────────────────────
+function renderCatGrid() {
+  const me  = getMonthExp();
+  const tot = me.reduce((s,e)=>s+e.amount,0);
+  const map = {};
+  me.forEach(e => { if (!map[e.cat]) map[e.cat]={total:0,count:0}; map[e.cat].total+=e.amount; map[e.cat].count++; });
+  const sorted = Object.entries(map).sort((a,b)=>b[1].total-a[1].total);
+  const grid = document.getElementById('cgrid');
+  grid.innerHTML = !sorted.length
+    ? '<div class="empty" style="grid-column:1/-1">No expenses yet</div>'
+    : sorted.map(([k,d]) => {
+        const cat = getCat(k); const pct = tot>0?(d.total/tot*100).toFixed(0):0;
+        return `<div class="ccard">
+          <div class="chdr"><div class="cicn" style="background:${cat.color}18">${cat.emoji}</div><div class="cnm">${cat.name}</div></div>
+          <div class="ctot">${fmt(d.total)}</div>
+          <div class="cct">${d.count} expense${d.count!==1?'s':''} \u00b7 ${pct}%</div>
+          <div class="barbg"><div class="barfill" style="width:${pct}%;background:${cat.color}"></div></div>
+        </div>`;
+      }).join('');
+
+  document.getElementById('cat-manage').innerHTML = categories.map((c,i) => `
+    <div class="cat-row" data-catindex="${i}" style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1.5px solid var(--bd)">
+      <span style="font-size:16px">${c.emoji}</span>
+      <div style="width:12px;height:12px;border-radius:50%;background:${c.color};flex-shrink:0;border:1.5px solid rgba(0,0,0,0.15)"></div>
+      <span style="flex:1;font-size:14px;font-weight:600">${c.name}</span>
+      <button data-action="edit-cat" data-catindex="${i}" title="Edit" style="background:none;border:2px solid var(--bd2);border-radius:6px;cursor:pointer;color:var(--txt2);font-size:13px;padding:3px 8px;font-weight:700">\u270e</button>
+      <button data-action="del-cat"  data-catindex="${i}" title="Delete" class="delbtn">\u00d7</button>
+    </div>`).join('');
+}
+
+function startEditCat(i) {
+  const c   = categories[i];
+  const row = document.querySelector(`.cat-row[data-catindex="${i}"]`); if (!row) return;
+  const inp = s => `style="font-family:inherit;font-size:13px;padding:7px 10px;border:2px solid var(--bd2);border-radius:8px;background:var(--card);color:var(--txt);outline:none"`;
+  row.innerHTML = `
+    <div style="display:flex;gap:8px;align-items:center;flex:1;flex-wrap:wrap">
+      <input data-cef="emoji" value="${c.emoji}" ${inp()} style="width:52px;text-align:center;font-size:16px;padding:7px 6px;font-family:inherit;border:2px solid var(--bd2);border-radius:8px;background:var(--card);color:var(--txt);outline:none" />
+      <input data-cef="name"  value="${c.name}"  ${inp()} style="flex:1;min-width:100px;font-family:inherit;font-size:13px;padding:7px 10px;border:2px solid var(--accent);border-radius:8px;background:var(--card);color:var(--txt);outline:none" />
+      <input data-cef="color" type="color" value="${c.color}" style="width:36px;height:36px;border:2px solid var(--bd2);border-radius:8px;cursor:pointer;padding:2px;background:var(--card)" />
+      <button data-action="save-cat" data-catindex="${i}" style="padding:7px 14px;background:var(--btn);color:var(--btntxt);border:none;border-radius:8px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer">Save</button>
+      <button data-action="cancel-cat" style="padding:7px 14px;background:var(--card);color:var(--txt);border:2px solid var(--bd2);border-radius:8px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer">Cancel</button>
+    </div>`;
+}
+
+function saveEditCat(i) {
+  const row = document.querySelector(`.cat-row[data-catindex="${i}"]`); if (!row) return;
+  const emoji = row.querySelector('[data-cef="emoji"]').value.trim() || '📌';
+  const name  = row.querySelector('[data-cef="name"]').value.trim();
+  const color = row.querySelector('[data-cef="color"]').value;
+  if (!name) return;
+  const oldKey = catKey(categories[i]);
+  categories[i] = { name, emoji, color };
+  const newKey = catKey(categories[i]);
+  // update any expenses that used the old category key
+  expenses.forEach(e => { if (e.cat === oldKey) e.cat = newKey; });
+  recurring.forEach(r => { if (r.cat === oldKey) r.cat = newKey; });
+  save(); populateCatSelects(); renderCatGrid();
+}
+
+// ── Category add / delete ─────────────────────────────────────────────────────
+function toggleAddCat() {
+  const a = document.getElementById('addcat-area');
+  a.style.display = a.style.display === 'none' ? 'block' : 'none';
+}
+function addCategory() {
+  const name  = document.getElementById('ncat').value.trim();
+  const emoji = document.getElementById('nemi').value.trim() || '📌';
+  if (!name) return;
+  categories.push({ name, emoji, color: COLOR_POOL[categories.length % COLOR_POOL.length] });
+  save();
+  document.getElementById('ncat').value = '';
+  document.getElementById('nemi').value = '';
+  document.getElementById('addcat-area').style.display = 'none';
+  populateCatSelects(); renderCatGrid();
+}
+function deleteCat(i) {
+  // (inline confirm used instead)
+  categories.splice(i, 1);
+  save(); populateCatSelects(); renderCatGrid();
+}
+
+// ── Chart ─────────────────────────────────────────────────────────────────────
+function renderChart() {
+  const me = getMonthExp();
+  const map = {};
+  me.forEach(e => { const cat=getCat(e.cat); if (!map[cat.name]) map[cat.name]={total:0,color:cat.color}; map[cat.name].total+=e.amount; });
+  const labels = Object.keys(map);
+  const data   = labels.map(k => parseFloat(map[k].total.toFixed(2)));
+  const colors = labels.map(k => map[k].color);
+  document.getElementById('chart-legend').innerHTML = !labels.length
+    ? '<span>No data for this month</span>'
+    : labels.map((l,i) => `<span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:12px;border-radius:3px;background:${colors[i]};flex-shrink:0"></span>${l} <strong>${fmt(data[i])}</strong></span>`).join('');
+  if (chartInst) { chartInst.destroy(); chartInst = null; }
+  if (!labels.length) return;
+  const ctx = document.getElementById('myChart').getContext('2d');
+  const tc = '#44433F', gc = 'rgba(0,0,0,0.08)';
+  if (chartType === 'bar') {
+    chartInst = new Chart(ctx, { type:'bar', data:{ labels, datasets:[{ data, backgroundColor:colors, borderRadius:7, borderSkipped:false }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{callbacks:{label:v=>' '+fmt(v.raw)}} }, scales:{ x:{ticks:{color:tc,font:{size:12,weight:'600'}},grid:{display:false}}, y:{ticks:{color:tc,font:{size:12},callback:v=>'$'+v},grid:{color:gc},border:{display:false}} } } });
+  } else {
+    chartInst = new Chart(ctx, { type:'pie', data:{ labels, datasets:[{ data, backgroundColor:colors, borderWidth:3, borderColor:'#FFFFFF' }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{callbacks:{label:v=>' '+fmt(v.raw)+' ('+((v.raw/data.reduce((a,b)=>a+b,0))*100).toFixed(0)+'%)'}} } } });
+  }
+}
+function setChartType(t, el) {
+  chartType = t;
+  document.querySelectorAll('#tab-chart .pill').forEach(p => p.classList.toggle('active', p.dataset.charttype === t));
+  renderChart();
+}
+
+// ── Recurring ─────────────────────────────────────────────────────────────────
+function showRecForm(show) { document.getElementById('rec-form-wrap').style.display = show ? 'block' : 'none'; }
+function addRecurring() {
+  const desc = document.getElementById('rdesc').value.trim();
+  const amt  = parseFloat(document.getElementById('ramt').value);
+  const paid = document.getElementById('rpaid').value;
+  const cat  = document.getElementById('rcat').value;
+  const day  = parseInt(document.getElementById('rday').value) || 1;
+  if (!desc || isNaN(amt) || amt<=0) return;
+  recurring.push({ id: uid(), desc, amount: amt, paid, cat, day });
+  save();
+  document.getElementById('rdesc').value = '';
+  document.getElementById('ramt').value  = '';
+  document.getElementById('rday').value  = '';
+  showRecForm(false); renderRecurring();
+}
+function renderRecurring() {
+  const el = document.getElementById('rec-list');
+  if (!recurring.length) { el.innerHTML = '<div class="empty">No recurring expenses set up yet</div>'; return; }
+  el.innerHTML = recurring.map(r => {
+    const cat = getCat(r.cat);
+    return `<div class="rec-item" data-recid="${r.id}">
+      <div class="cdot" style="background:${cat.color}"></div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;font-weight:700">${r.desc}</div>
+        <div style="font-size:12px;color:var(--txt2);font-weight:500;margin-top:2px">${r.cat} \u00b7 day ${r.day} \u00b7 ${names[r.paid]}</div>
+      </div>
+      <span class="rec-badge">${fmt(r.amount)}/mo</span>
+      <button data-action="del-rec" data-recid="${r.id}" class="delbtn" title="Delete">\u00d7</button>
+    </div>`;
+  }).join('');
+}
+
+// ── Settings ──────────────────────────────────────────────────────────────────
+function saveSettings() {
+  const a = document.getElementById('sname-a').value.trim();
+  const b = document.getElementById('sname-b').value.trim();
+  if (!a || !b) return;
+  names = {A:a, B:b}; save(); applyNames(); render(); alert('Names saved!');
+}
+function exportData() {
+  const blob = new Blob([JSON.stringify({expenses,recurring,categories,names,exportedAt:new Date().toISOString()},null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'split-backup-'+new Date().toISOString().split('T')[0]+'.json';
+  a.click();
+}
+function importData() {
+  const file = document.getElementById('import-file').files[0];
+  if (!file) { alert('Select a JSON backup file first.'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const d = JSON.parse(e.target.result);
+      if (!d.expenses || !d.categories) throw new Error();
+      // (inline confirm used instead)
+      expenses=d.expenses||[]; recurring=d.recurring||[];
+      categories=d.categories||JSON.parse(JSON.stringify(DEFAULT_CATS));
+      names=d.names||{A:'Alex',B:'Jordan'};
+      save(); applyNames(); populateCatSelects(); render(); renderRecurring();
+      alert('Imported successfully!');
+    } catch { alert('Invalid backup file.'); }
+  };
+  reader.readAsText(file);
+}
+function clearMonth() {
+  const y=viewMonth.getFullYear(), m=viewMonth.getMonth();
+  // (inline confirm used instead)
+  expenses = expenses.filter(e => { const d=new Date(e.date); return !(d.getFullYear()===y&&d.getMonth()===m); });
+  save(); render();
+}
+
+// ── Single global event delegation ───────────────────────────────────────────
+document.addEventListener('click', function(ev) {
+  const btn = ev.target.closest('[data-action]');
+  if (!btn) return;
+  const action = btn.dataset.action;
+
+  if (action === 'del-exp') {
+    expenses = expenses.filter(e => e.id !== btn.dataset.id);
+    save(); render(); return;
+  }
+  if (action === 'edit-exp')    { startEditExp(btn.dataset.id); return; }
+  if (action === 'save-exp')    { saveEditExp(btn.dataset.id); return; }
+  if (action === 'cancel-exp')  { renderList(); return; }
+
+  if (action === 'edit-cat')   { startEditCat(parseInt(btn.dataset.catindex)); return; }
+  if (action === 'save-cat')   { saveEditCat(parseInt(btn.dataset.catindex)); return; }
+  if (action === 'cancel-cat') { renderCatGrid(); return; }
+  if (action === 'del-cat') {
+    const i = parseInt(btn.dataset.catindex);
+    categories.splice(i, 1);
+    save(); populateCatSelects(); renderCatGrid(); return;
+  }
+
+  if (action === 'del-rec') {
+    const id = btn.dataset.recid;
+    recurring = recurring.filter(r => r.id !== id);
+    expenses  = expenses.filter(e => e.recurringId !== id);
+    save(); render(); renderRecurring(); return;
+  }
+
+  if (action === 'tab')    { switchTab(btn.dataset.tab); return; }
+  if (action === 'filter') {
+    currentFilter = btn.dataset.filter;
+    document.querySelectorAll('#filter-pills [data-action="filter"]').forEach(p => p.classList.toggle('active', p.dataset.filter===currentFilter));
+    renderList(); return;
+  }
+  if (action === 'chart-type') {
+    chartType = btn.dataset.charttype;
+    document.querySelectorAll('#tab-chart [data-action="chart-type"]').forEach(p => p.classList.toggle('active', p.dataset.charttype===chartType));
+    renderChart(); return;
+  }
+  if (action === 'month-prev') { changeMonth(-1); return; }
+  if (action === 'month-next') { changeMonth(1); return; }
+  if (action === 'add-expense')    { addExpense(); return; }
+  if (action === 'add-cat-toggle') { toggleAddCat(); return; }
+  if (action === 'add-cat-save')   { addCategory(); return; }
+  if (action === 'show-rec-form')  { showRecForm(true); return; }
+  if (action === 'hide-rec-form')  { showRecForm(false); return; }
+  if (action === 'add-rec')        { addRecurring(); return; }
+  if (action === 'save-settings')  { saveSettings(); return; }
+  if (action === 'export')         { exportData(); return; }
+  if (action === 'import')         { importData(); return; }
+  if (action === 'clear-month') {
+    const y=viewMonth.getFullYear(), m=viewMonth.getMonth();
+    expenses = expenses.filter(e => { const d=new Date(e.date); return !(d.getFullYear()===y&&d.getMonth()===m); });
+    save(); render(); return;
+  }
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+document.getElementById('idate').value = new Date().toISOString().split('T')[0];
+updateMonthDisplay();
+applyNames();
+populateCatSelects();
+render();
+renderRecurring();
+</script>
+</body>
+</html>
