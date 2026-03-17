@@ -237,8 +237,8 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
     <div class="fcard">
       <div class="ftitle">Roommate names</div>
       <div class="frow f2">
-        <div class="field"><label>Person A name</label><input id="sname-a" placeholder="Alex"/></div>
-        <div class="field"><label>Person B name</label><input id="sname-b" placeholder="Jordan"/></div>
+        <div class="field"><label>Person A name</label><input id="sname-a" placeholder="Iran"/></div>
+        <div class="field"><label>Person B name</label><input id="sname-b" placeholder="Tyger"/></div>
       </div>
       <button class="abtn" data-action="save-settings">Save names</button>
     </div>
@@ -253,11 +253,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
       <div class="field" style="margin-bottom:10px"><label>Select backup file</label><input type="file" id="import-file" accept=".json" style="padding:8px 12px"/></div>
       <button class="abtn" data-action="import" style="background:var(--accent)">Import backup</button>
     </div>
-    <div class="fcard">
-      <div class="ftitle" style="color:var(--red);margin-bottom:8px">Danger zone</div>
-      <p style="font-size:13px;color:var(--txt2);margin-bottom:14px">Permanently delete all expenses for the currently viewed month. This cannot be undone.</p>
-      <button class="abtn" style="background:var(--red)" data-action="clear-month">Clear this month's expenses</button>
-    </div>
+
   </div>
 </div>
 
@@ -280,7 +276,7 @@ const COLOR_POOL = ['#1A4FCC','#B84A00','#6B21A8','#B45309','#0A6B35','#9D1A6B',
 let categories = JSON.parse(localStorage.getItem('split-cats') || 'null') || JSON.parse(JSON.stringify(DEFAULT_CATS));
 let expenses   = JSON.parse(localStorage.getItem('split-exp')  || '[]');
 let recurring  = JSON.parse(localStorage.getItem('split-rec')  || '[]');
-let names      = JSON.parse(localStorage.getItem('split-names')|| 'null') || {A:'Alex',B:'Jordan'};
+let names      = JSON.parse(localStorage.getItem('split-names')|| 'null') || {A:'Iran',B:'Tyger'};
 let viewMonth  = new Date(); viewMonth.setDate(1);
 let currentFilter = 'all';
 let chartType = 'bar';
@@ -660,7 +656,7 @@ function importData() {
       // (inline confirm used instead)
       expenses=d.expenses||[]; recurring=d.recurring||[];
       categories=d.categories||JSON.parse(JSON.stringify(DEFAULT_CATS));
-      names=d.names||{A:'Alex',B:'Jordan'};
+      names=d.names||{A:'Iran',B:'Tyger'};
       save(); applyNames(); populateCatSelects(); render(); renderRecurring();
       alert('Imported successfully!');
     } catch { alert('Invalid backup file.'); }
